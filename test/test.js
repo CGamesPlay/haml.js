@@ -1,9 +1,36 @@
 'use strict';
 
 var fs = require('fs');
+var _ = require('underscore');
 var haml = require('../lib/haml');
+var haml_spec = require('./haml-spec/tests.json');
 
-describe('haml', function () {
+describe('haml-spec -', function() {
+  _.each(haml_spec, function(examples, context) {
+    if (context == "tags with Ruby-style attributes") {
+      // Ruby-style hashes not supported
+      return;
+    }
+    describe(context + " -", function() {
+      _.each(examples, function(example, name) {
+        if (example.config && example.config.format !== "xhtml") {
+          // Only XHTML supported
+          return;
+        }
+        it(name, function() {
+          var html = haml.render(example.haml, { locals: example.locals, }).trim();
+          if (example.result === "error") {
+            html.should_not.equal(example.html);
+          } else {
+            html.should.equal(example.html);
+          }
+        });
+      });
+    });
+  });
+});
+
+xdescribe('haml', function () {
   describe('.version', function () {
     it('should be a triplet', function () {
       haml.version.should.match(/^\d+\.\d+\.\d+$/);

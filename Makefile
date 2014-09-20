@@ -1,5 +1,6 @@
 REPORTER = spec
 test:
+	@git submodule update --init
 	@./node_modules/.bin/mocha \
 		--require should \
 		--reporter $(REPORTER) \
